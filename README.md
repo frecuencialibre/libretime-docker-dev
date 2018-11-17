@@ -1,3 +1,10 @@
+### Notes on this dev fork:
+
+This repo is for development only. It runs Libretime from a directory on the host machine, thus allowing source control and contribution to the open source project. See notes below for manual steps and possible . Pull requests to fix these or other improvements welcome! 
+1. You'll need to manually generate `/usr/share/airtime/php/vendor`. You could copy this from another instance, or run composer. Out of the box you'll get a fatal apache error since `autoload.php` won't find anything.
+2. Make sure `/opt/libretime/entrypoint.sh` and `/opt/libretime/firstrun.sh` execute correctly in order to create the database and complete `/etc/airtime/airtime.conf`, without which services (such as `libretime-playout`) will crash.
+3. If audio import hangs in the UI, and `/var/log/airtime/airtime_analyzer.log` shows nothing, make sure rabbitmq is working to pass along the message that the file should be imported. simply restarting containers helped me with this one. 
+
 # "Libretime" Multi-container Docker Setup.
 
 This is a multi-container Docker build of the Libretime Radio Broadcast Software _(Libretime is a direct fork of Airtime for those who are wondering, hence the similarities)_.
