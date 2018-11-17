@@ -24,11 +24,13 @@ ENV LANGUAGE=en_US.UTF-8
 RUN apt-get install -y php7.0-curl php7.0-pgsql apache2 libapache2-mod-php7.0 php7.0 php-pear php7.0-gd php-bcmath php-mbstring
 
 # Pull down libretime sources
-ADD https://github.com/ned-kelly/libretime/archive/master.tar.gz /opt
+ADD https://github.com/LibreTime/libretime/archive/master.tar.gz /opt
+# I've needed to iterate quickly using docker cache, and have a slow internet connection, and so saved the above to my hard drive, and then used this line instead:
+# ADD ./libretime.tar.gz  /opt
 
 # Run libretime install script
 RUN export DEBIAN_FRONTEND=noninteractive && \
-    cd /opt && \
+cd /opt && \
     tar -xzf /opt/master.tar.gz && \
     mv /opt/libretime-master /opt/libretime && \
     SYSTEM_INIT_METHOD=`readlink --canonicalize -n /proc/1/exe | rev | cut -d'/' -f 1 | rev` && \
@@ -42,6 +44,9 @@ RUN mkdir -p /external-media/ && \
 
 # There seems to be a bug somewhere in the code and it's not respecting the DB being on another host (even though it's configured in the config files!)
 # We'll use a lightweight golang TCP proxy to proxy any PGSQL request to the postgres docker container on TCP:5432. 
+
+# Again, faster iteration by saving the download below to your hard drive
+# ADD go1.10.1.linux-amd64.tar.gz /usr/local/
 
 RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz && tar -xzf go* && \
     mv go /usr/local/ && \
