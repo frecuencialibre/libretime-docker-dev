@@ -3,7 +3,8 @@
 This repo is for development only. It runs Libretime from a directory on the host machine, thus allowing source control and contribution to the open source project. See notes below for manual steps and possible . Pull requests to fix these or other improvements welcome! 
 1. You'll need to manually generate `/usr/share/airtime/php/vendor`. You could copy this from another instance, or run composer. Out of the box you'll get a fatal apache error since `autoload.php` won't find anything.
 2. Make sure `/opt/libretime/entrypoint.sh` and `/opt/libretime/firstrun.sh` execute correctly in order to create the database and complete `/etc/airtime/airtime.conf`, without which services (such as `libretime-playout`) will crash.
-3. If audio import hangs in the UI, and `/var/log/airtime/airtime_analyzer.log` shows nothing, make sure rabbitmq is working to pass along the message that the file should be imported. simply restarting containers helped me with this one. 
+3. Services are managed with [Supervisor](http://supervisord.org/). To see the status of all processes, run `supervisorctl`. [Supervisord tutorial](https://www.digitalocean.com/community/tutorials/how-to-install-and-manage-supervisor-on-ubuntu-and-debian-vps#managing-programs)
+4. If audio import hangs in the UI, and `/var/log/airtime/airtime_analyzer.log` shows nothing, make sure rabbitmq is working to pass along the message that the file should be imported. simply restarting containers with all services running correctly helped me with this one. 
 
 # "Libretime" Multi-container Docker Setup.
 
