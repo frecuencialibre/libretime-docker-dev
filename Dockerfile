@@ -24,15 +24,14 @@ ENV LANGUAGE=en_US.UTF-8
 RUN apt-get install -y php7.0-curl php7.0-pgsql apache2 libapache2-mod-php7.0 php7.0 php-pear php7.0-gd php-bcmath php-mbstring
 
 # Pull down libretime sources
-ADD https://github.com/LibreTime/libretime/archive/master.tar.gz /opt
-# I've needed to iterate quickly using docker cache, and have a slow internet connection, and so saved the above to my hard drive, and then used this line instead:
-# ADD ./libretime.tar.gz  /opt
+ ADD https://github.com/frecuencialibre/libretime/archive/latest-with-import.tar.gz /opt 
+ # I've needed to iterate quickly using docker cache, and have a slow internet connection, and so saved the above to my hard drive, and then used this line instead:
+# ADD ./libretime-importtesting.tar.xz /opt
 
 # Run libretime install script
 RUN export DEBIAN_FRONTEND=noninteractive && \
 cd /opt && \
-    tar -xzf /opt/master.tar.gz && \
-    mv /opt/libretime-master /opt/libretime && \
+    mv /opt/libretime-importtesting /opt/libretime && \
     SYSTEM_INIT_METHOD=`readlink --canonicalize -n /proc/1/exe | rev | cut -d'/' -f 1 | rev` && \
     sed -i -e 's/\*systemd\*)/\*'"$SYSTEM_INIT_METHOD"'\*)/g' /opt/libretime/install && \
     echo "SYSTEM_INIT_METHOD: [$SYSTEM_INIT_METHOD]" && \
@@ -46,11 +45,11 @@ RUN mkdir -p /external-media/ && \
 # We'll use a lightweight golang TCP proxy to proxy any PGSQL request to the postgres docker container on TCP:5432. 
 
 # Again, faster iteration by saving the download below to your hard drive
-# ADD go1.10.1.linux-amd64.tar.gz /usr/local/
+ADD go1.10.1.linux-amd64.tar.gz /usr/local/
 
-RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz && tar -xzf go* && \
-    mv go /usr/local/ && \
-    export GOPATH=/opt/ && \
+# RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz && tar -xzf go* && \
+#     mv go /usr/local/ && \
+RUN export GOPATH=/opt/ && \
     export GOROOT=/usr/local/go && \
     export PATH=$GOPATH/bin:$GOROOT/bin:$PATH && \
     go get github.com/jpillora/go-tcp-proxy/cmd/tcp-proxy
@@ -58,6 +57,12 @@ RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.g
 # Cleanup excess fat...
 RUN apt-get remove -y postgresql-9.5 rabbitmq-server icecast2
 RUN apt-get clean
+
+RUN export DEBIAN_FRONTEND=noninteractive && \
+ wget -qO- http://download.opensuse.org/repositories/home:/hairmare:/silan/Debian_7.0/Release.key   | apt-key add -  && \
+echo 'deb http://download.opensuse.org/repositories/home:/hairmare:/silan/xUbuntu_16.04 ./'   > /etc/apt/sources.list.d/hairmare_silan.list  && \
+apt-get update  && \
+apt-get install silan
 
 COPY bootstrap/entrypoint.sh /opt/libretime/entrypoint.sh
 COPY bootstrap/firstrun.sh /opt/libretime/firstrun.sh
